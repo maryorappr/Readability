@@ -8,7 +8,7 @@ public class ColemanLiauIndex
 {
     public static void main(String[] args) throws IOException
     {
-        File file = new File("src/files/formattedFile.txt");
+        File file = new File("src/files/formattedReadabilityTESTONLY.txt");
         System.out.println(calculateColemanLiauIndex(file));
     }
     

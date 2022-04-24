@@ -17,17 +17,22 @@ public class CorpusAutoTest
 {
     public static void main(String[] args) throws IOException
     {
+        //reads all of the corpus into a list
         List<String[]> list;
-        
         try (CSVReader reader = new CSVReader(new FileReader("src/files/CLEAR Corpus 6.01 - CLEAR Corpus 6.01.csv")))
         {
             list = reader.readAll();
         }
         
+        //create a writer for the new csv file
         try (CSVWriter writer = new CSVWriter(new FileWriter("src/main/java/readability/FormattedCSV.csv")))
         {
             List<String[]> completeList = new ArrayList<>();
             
+            /*
+            this is the first line of our spreadsheet, every row must have have each of these. every time we add a
+            new index this is the first thing to be changed.
+             */
             String[] firstLine = {"ID", "Title", "Excerpt", "Coleman-Liau Index", "Coleman-Liau Index (-1)",
                     "Coleman-Liau Index (-2)", "Flesch-Reading-Ease", "Flesch-Kincaid-Grade-Level",
                     "Automated Readability Index", "SMOG Readability", "New Dale-Chall Readability Formula"

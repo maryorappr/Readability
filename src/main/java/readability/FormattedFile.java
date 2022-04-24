@@ -11,8 +11,8 @@ public class FormattedFile
 {
     public static void main(String[] args) throws IOException
     {
-        File file = new File("src/files/readabilityText.txt");
-        File formattedFile = new File("src/files/formattedReadability.txt");
+        File file = new File("src/files/readabilityTextTESTONLY.txt");
+        File formattedFile = new File("src/files/formattedReadabilityTESTONLY.txt");
     
         Scanner input = new Scanner(System.in);
         System.out.print("Enter number: ");
