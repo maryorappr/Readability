@@ -24,7 +24,7 @@ public class CorpusAutoTest
             list = reader.readAll();
         }
         
-        try (CSVWriter writer = new CSVWriter(new FileWriter("src/files/FormattedCSV.csv")))
+        try (CSVWriter writer = new CSVWriter(new FileWriter("src/main/java/readability/FormattedCSV.csv")))
         {
             List<String[]> completeList = new ArrayList<>();
             
