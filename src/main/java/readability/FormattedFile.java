@@ -18,25 +18,25 @@ public class FormattedFile
         System.out.print("Enter number: ");
         int num = input.nextInt();
         
-        formatFile(file, formattedFile, num, true);
+        formatFile(file, formattedFile, num, true, false);
         System.out.println("Formatted");
     }
     
-    public static void formatFile(File originalFile, File formattedFile, int num, boolean skipChapter) throws IOException
+    public static void formatFile(File originalFile, File formattedFile, int num, boolean skipChapter, boolean automated) throws IOException
     {
         try (FileWriter writer = new FileWriter(formattedFile))
         {
             Scanner fileReader = new Scanner(originalFile);
             ArrayList<StringBuilder> list = new ArrayList<>(10);
         
-            cleanup(fileReader, list, skipChapter);
+            cleanup(fileReader, list, skipChapter, automated);
             writeToFile(writer, list, num);
         
             fileReader.close();
         }
     }
     
-    private static void cleanup(Scanner fileReader, List<StringBuilder> list, boolean skipChapter)
+    private static void cleanup(Scanner fileReader, List<StringBuilder> list, boolean skipChapter, boolean automated)
     {
         int listIndex = 0;
         
@@ -63,11 +63,13 @@ public class FormattedFile
             {
                 if (listIndex >= list.size())
                     list.add(new StringBuilder());
-            
-                if (character.matches("[\\p{L} -]"))
-                    list.get(listIndex).append(character);
-                else if (character.matches("[!?.]"))
+    
+                if (character.matches("[!?.]"))
                     listIndex++;
+                else if (automated)
+                    list.get(listIndex).append(character);
+                else if (character.matches("[\\p{L} -]"))
+                    list.get(listIndex).append(character);
             }
         }
     }

@@ -10,14 +10,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static readability.ColemanLiauIndex.calculateColemanLiauIndex;
+import static readability.ReadingIndexCalculation.*;
 import static readability.FormattedFile.formatFile;
 
 public class CorpusAutoTest
 {
     public static void main(String[] args) throws IOException
     {
-        //reads all of the corpus into a list
+        //reads all the corpus into a list
         List<String[]> list;
         try (CSVReader reader = new CSVReader(new FileReader("src/files/CLEAR Corpus 6.01 - CLEAR Corpus 6.01.csv")))
         {
@@ -30,12 +30,17 @@ public class CorpusAutoTest
             List<String[]> completeList = new ArrayList<>();
             
             /*
-            this is the first line of our spreadsheet, every row must have have each of these. every time we add a
+            this is the first line of our spreadsheet, every row must have each of these. every time we add a
             new index this is the first thing to be changed.
              */
             String[] firstLine = {"ID", "Title", "Excerpt", "Coleman-Liau Index", "Coleman-Liau Index (-1)",
-                    "Coleman-Liau Index (-2)", "Flesch-Reading-Ease", "Flesch-Kincaid-Grade-Level",
-                    "Automated Readability Index", "SMOG Readability", "New Dale-Chall Readability Formula"
+                    "Coleman-Liau Index (-2)", "Flesch-Reading-Ease", "Flesch-Reading-Ease (-1)",
+                    "Flesch-Reading-Ease (-2)", "Flesch-Reading-Ease CORPUS", "Flesch-Kincaid-Grade-Level",
+                    "Flesch-Kincaid-Grade-Level (-1)", "Flesch-Kincaid-Grade-Level (-2)",
+                    "Flesch-Kincaid-Grade-Level CORPUS", "Automated Readability Index",
+                    "Automated Readability Index (-1)", "Automated Readability Index (-2)",
+                    "Automated Readability Index CORPUS", "SMOG Readability",
+                    "New Dale-Chall Readability Formula"
             };
             
             completeList.add(firstLine);
@@ -50,39 +55,51 @@ public class CorpusAutoTest
     {
         for (int j = 1; j < list.size(); j++)
         {
+            //open the files and grab the row contents
             String[] row = list.get(j);
             File file = new File("src/files/unformattedFile.txt");
             File formattedFile = new File("src/files/formattedFile.txt");
             
-            //calculate index excluding 0,1,2-word sentences
+            //calculate indexes excluding 0,1,2-word sentences
             String[] colemanIndexes = new String[3];
+            String[] fleschReadingEaseIndexes = new String[3];
+            String[] fleschGradeLevelIndexes = new String[3];
+            String[] automatedIndexes = new String[3];
             for (int i = 0; i < colemanIndexes.length; i++)
             {
                 try (FileWriter fileWriter = new FileWriter(file))
                 {
                     fileWriter.write(row[14]);
                 }
-                formatFile(file, formattedFile, i, false);
+                formatFile(file, formattedFile, i, false, false);
+                Passage passage = new Passage(formattedFile);
+                double colemanIndex = calculateColemanLiau(passage);
+                double fleshReadingEaseIndex = calculateFleschReadingEase(passage);
+                double fleshReadingGradeIndex = calculateFleschGradeLevel(passage);
+    
+                formatFile(file, formattedFile, i, false, true);
+                passage = new Passage(formattedFile);
+                double automatedIndex = calculateAutomated(passage);
                 
-                double index = calculateColemanLiauIndex(formattedFile);
-                String gradeLevel = String.valueOf((int) index);
-                if (index > 12)
-                    gradeLevel = "12+";
-                
-                colemanIndexes[i] = "Index: " + index + " Grade Level: " + gradeLevel;
+                colemanIndexes[i] = "" + colemanIndex;
+                fleschReadingEaseIndexes[i] = "" + fleshReadingEaseIndex;
+                fleschGradeLevelIndexes[i] = "" + fleshReadingGradeIndex;
+                automatedIndexes[i] = "" + automatedIndex;
             }
             
             //get reading levels in string form
-            String fleschEaseIndex = fleschReadingEase(row[24]);
-            String fleschGradeIndex = fleschKincaidGradeLevel(row[25]);
-            String automatedIndex = automated(row[26]);
-            String smogIndex = smog(row[27]);
-            String daleIndex = newDaleChall(row[28]);
+            String fleschEaseIndex = row[24];
+            String fleschGradeIndex = row[25];
+            String automatedIndex = row[26];
+            String smogIndex = row[27];
+            String daleIndex = row[28];
             
             //format the line and add it to the list
-            String completeLine = "%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s".formatted(row[0], row[3], row[14], colemanIndexes[0],
-                    colemanIndexes[1], colemanIndexes[2], fleschEaseIndex, fleschGradeIndex, automatedIndex, smogIndex,
-                    daleIndex);
+            String completeLine = "%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s".formatted(row[0], row[3], row[14], colemanIndexes[0],
+                    colemanIndexes[1], colemanIndexes[2], fleschReadingEaseIndexes[0],fleschReadingEaseIndexes[1],
+                    fleschReadingEaseIndexes[2], fleschEaseIndex, fleschGradeLevelIndexes[0],
+                    fleschGradeLevelIndexes[1], fleschGradeLevelIndexes[2], fleschGradeIndex, automatedIndexes[0],
+                    automatedIndexes[1], automatedIndexes[2], automatedIndex, smogIndex, daleIndex);
             
             row = completeLine.split("\\^");
             completeList.add(row);
@@ -90,6 +107,7 @@ public class CorpusAutoTest
     }
     
     //these methods just convert the index to a grade level, simple is used if the grade level is the index without decimals
+    //DO NOT NEED THESE FOR THE TIME BEING
     private static String fleschReadingEase(String num)
     {
         double temp = Double.parseDouble(num);
