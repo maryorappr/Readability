@@ -23,3 +23,6 @@
 hs_err_pid*
 replay_pid*
 .idea/sonarlint*
+.idea/sonarlint/issuestore/1/9/19ce8f86ad084222e177ef34466c11d7487919b7
+.idea/sonarlint/issuestore*
+*.pb
