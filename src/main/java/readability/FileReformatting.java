@@ -7,21 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class FormattedFile
+public class FileReformatting
 {
-    public static void main(String[] args) throws IOException
-    {
-        File file = new File("src/files/readabilityTextTESTONLY.txt");
-        File formattedFile = new File("src/files/formattedReadabilityTESTONLY.txt");
-    
-        Scanner input = new Scanner(System.in);
-        System.out.print("Enter number: ");
-        int num = input.nextInt();
-        
-        formatFile(file, formattedFile, num, true, false);
-        System.out.println("Formatted");
-    }
-    
     public static void formatFile(File originalFile, File formattedFile, int num, boolean skipChapter, boolean automated) throws IOException
     {
         try (FileWriter writer = new FileWriter(formattedFile))
@@ -36,6 +23,7 @@ public class FormattedFile
         }
     }
     
+    //TODO remove automated parameter
     private static void cleanup(Scanner fileReader, List<StringBuilder> list, boolean skipChapter, boolean automated)
     {
         int listIndex = 0;
@@ -52,24 +40,30 @@ public class FormattedFile
             }
         
             //basic cleanup
+            //TODO add in a file with abbreviations and read in as a set
             line = line.replaceAll("https\\S*", " ");
             line = line.replaceAll("\\s* \\s*", " ");
             line = line.replaceAll("\\.+", ".");
             line = line.replaceAll("Mr\\.|Ms\\.|Dr\\.|Mrs\\.", "Tx");
+            
         
             //add matching characters/sentences to proper index in the list
             String[] charArray = line.split("");
             for (String character : charArray)
             {
+                //ignore this it just adds more space
                 if (listIndex >= list.size())
                     list.add(new StringBuilder());
     
+                //juicy stuff right here
+                
+//                else if (automated)
+//                    list.get(listIndex).append(character);
+//                if (character.matches("[\\d\\p{L} -]"))
+                
+                list.get(listIndex).append(character);
                 if (character.matches("[!?.]"))
                     listIndex++;
-                else if (automated)
-                    list.get(listIndex).append(character);
-                else if (character.matches("[\\p{L} -]"))
-                    list.get(listIndex).append(character);
             }
         }
     }
@@ -78,9 +72,14 @@ public class FormattedFile
     {
         for (StringBuilder sentence : list)
         {
+            //TODO this is a huge mess
+            
             //cleanup white space in case any extra slipped through (probably useless)
-            String temp = String.valueOf(sentence).replaceAll("\\s* \\s*", " ");
+    
+            String temp = String.valueOf(sentence).trim();
+            
         
+            
             //sometimes the line starts with a space, this removes it
             if (temp.startsWith(" "))
                 temp = temp.substring(1);
@@ -99,4 +98,8 @@ public class FormattedFile
         }
     }
     
+    private FileReformatting()
+    {
+    
+    }
 }
