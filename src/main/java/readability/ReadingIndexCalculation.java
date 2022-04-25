@@ -6,15 +6,6 @@ import java.util.Scanner;
 
 public class ReadingIndexCalculation
 {
-    public static void main(String[] args) throws IOException
-    {
-        File file = new File("src/files/formattedReadabilityTESTONLY.txt");
-    
-        Passage passage = new Passage(file);
-        System.out.println(calculateColemanLiau(file));
-        System.out.println(calculateColemanLiau(passage));
-    }
-    
     public static double calculateColemanLiau(File book) throws IOException
     {
         double characters = 0;
@@ -110,4 +101,8 @@ public class ReadingIndexCalculation
         return index;
     }
     
+    private ReadingIndexCalculation()
+    {
+    
+    }
 }
