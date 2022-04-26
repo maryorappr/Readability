@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Passage
 {
-    private double totalCharacterCount = 0;
+    private double totalCharacterCount = 0; //DOES NOT INCLUDE SPACES
     private double characterCount = 0;
     private double wordCount = 0;
     private double sentenceCount = 0;
@@ -23,20 +23,38 @@ public class Passage
             String[] wordsArray = sentence.split(" ");
             for (String word : wordsArray)
             {
-                word = word.replace("-", "");
-                wordCount++;
-                characterCount += word.length();
+                totalCharacterCount += word.length();
+                boolean hasLetter = false;
+    
+                String[] charArray = word.split("");
+                for (String character : charArray)
+                {
+                    if (character.matches("\\p{L}"))
+                    {
+                        hasLetter = true;
+                        characterCount++;
+                    }
+                }
+                if (hasLetter)
+                    wordCount++;
                 
+                //count syllables
                 word = word.replaceAll("[aeiouyAEIOUY]", "#");
                 word = word.replaceAll("#{2,}", "#");
                 
-                String[] charArray = word.split("");
+                charArray = word.split("");
                 for (String character : charArray)
                     if (character.equals("#"))
                         syllableCount++;
             }
         }
         fileReader.close();
+    
+        System.out.println(totalCharacterCount);
+        System.out.println(characterCount);
+        System.out.println(wordCount);
+        System.out.println(sentenceCount);
+        System.out.println(syllableCount);
     }
     
     public double getTotalCharacterCount()

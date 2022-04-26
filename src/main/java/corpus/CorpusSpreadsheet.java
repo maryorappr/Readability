@@ -11,9 +11,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static readability.ReadingIndexCalculation.*;
-import static readability.IndexConversion.*;
+import static readability.IndexConversion.automatedGrade;
+import static readability.IndexConversion.colemanGrade;
+import static readability.IndexConversion.daleChallGrade;
+import static readability.IndexConversion.fleschEaseGrade;
+import static readability.IndexConversion.fleschKincaidGrade;
+import static readability.IndexConversion.smogGrade;
 import static readability.FileReformatting.formatFile;
+import static readability.ReadingIndexCalculation.calculateAutomated;
+import static readability.ReadingIndexCalculation.calculateColemanLiau;
+import static readability.ReadingIndexCalculation.calculateFleschGradeLevel;
+import static readability.ReadingIndexCalculation.calculateFleschReadingEase;
 
 public class CorpusSpreadsheet
 {
@@ -27,7 +35,7 @@ public class CorpusSpreadsheet
         }
         
         //create a writer for the new csv file
-        try (CSVWriter writer = new CSVWriter(new FileWriter("src/main/java/readability/FormattedCSV.csv")))
+        try (CSVWriter writer = new CSVWriter(new FileWriter("src/main/java/corpus/FormattedCSV.csv")))
         {
             List<String[]> completeList = new ArrayList<>();
             
@@ -40,13 +48,23 @@ public class CorpusSpreadsheet
             {
                     "ID", //ID of entry, corresponds top CLEAR Corpus entry IDs
                     "Title", //Title of passage
+                    "Year published",
+                    "Category",
                     "Excerpt", //passage that is being tested
+                    "Total characters",
+                    "Total letters",
+                    "Total words",
+                    "Total sentences",
+                    "Total syllables",
+                    "Average syllables per word",
+                    "Average word Length",
+                    "Average sentence length",
+                    
                     
                     //(-2) means excluding 2 word sentences, (-1) is excluding 1 word sentences
                     "Coleman-Liau Index (-2)",
                     "Coleman-Liau Index (-1)",
                     "Coleman-Liau Index",
-                    
                     
                     "Flesch-Reading-Ease (-2)",
                     "Flesch-Reading-Ease (-1)",
@@ -69,11 +87,8 @@ public class CorpusSpreadsheet
                     //these two I don't calculate for
                     "*SMOG Readability",
                     "*New Dale-Chall Readability Formula",
-                    /*
-                    below are the actual grade levels, so just an integer
-                    pls figure out what the range is going to be ([0 - 17] for now but can be changed)
-                     */
-                    
+        
+                    // below are the actual grade levels, so just an integer
                     "Coleman-Liau Grade Level",
                     "Flesch-Reading-Ease Grade Level",
                     "*Flesch-Reading-Ease Grade Level",
@@ -107,22 +122,23 @@ public class CorpusSpreadsheet
             double[] fleschEaseIndexes = new double[3];
             double[] fleschGradeIndexes = new double[3];
             double[] automatedIndexes = new double[3];
+            
+            
+            
+            
+            
             for (int i = 0; i < colemanIndexes.length; i++)
             {
                 try (FileWriter fileWriter = new FileWriter(file))
                 {
                     fileWriter.write(row[14]);
                 }
-                formatFile(file, formattedFile, i, false, false);
+                formatFile(file, formattedFile, i, false);
                 Passage passage = new Passage(formattedFile);
                 //this is just to avoid negative numbers
                 double colemanIndex = Math.max(calculateColemanLiau(passage), 0);
                 double fleschReadingEaseIndex = Math.max(calculateFleschReadingEase(passage), 0);
                 double fleschReadingGradeIndex = Math.max(calculateFleschGradeLevel(passage), 0);
-    
-                //automated needs the file formatted slightly differently
-                formatFile(file, formattedFile, i, false, true);
-                passage = new Passage(formattedFile);
                 double automatedIndex = Math.max(calculateAutomated(passage), 0);
                 
                 colemanIndexes[i] = colemanIndex;
@@ -130,6 +146,18 @@ public class CorpusSpreadsheet
                 fleschGradeIndexes[i] = fleschReadingGradeIndex;
                 automatedIndexes[i] = automatedIndex;
             }
+    
+            formatFile(file, formattedFile, 0, false);
+            Passage passage = new Passage(formattedFile);
+    
+            //put da stuff here
+            double[] info = {
+                    passage.getTotalCharacterCount(), passage.getCharacterCount(), passage.getWordCount(),
+                    passage.getSentenceCount(), passage.getSyllableCount(),
+                    passage.getCharacterCount() / passage.getWordCount(),
+                    passage.getSyllableCount() / passage.getWordCount(),
+                    passage.getWordCount() / passage.getSentenceCount(),
+            };
             
             //get reading levels in string form
             //TODO pls make this an array this is insanity
@@ -158,14 +186,16 @@ public class CorpusSpreadsheet
             
             //format the line and add it to the list
             //TODO DONT REMOVE THIS pls dont forget to actually add in the stuff that u added in above pls thank u
-            String completeLine = "%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s".
-                    formatted(row[0], row[3], row[14], colemanIndexes[2], colemanIndexes[1], colemanIndexes[0],
-                    fleschEaseIndexes[2],fleschEaseIndexes[1], fleschEaseIndexes[0], fleschEaseCorpus,
-                    fleschEasePercentError, fleschGradeIndexes[2], fleschGradeIndexes[1], fleschGradeIndexes[0],
-                    fleschGradeCorpus, fleschGradePercentError, automatedIndexes[2], automatedIndexes[1],
-                    automatedIndexes[0], automatedCorpus, automatedPercentError, smogCorpus, daleCorpus, colemanGrade,
-                    fleschEaseGrade, fleschEaseCorpusGrade, fleschKincaidGrade, fleschKincaidCorpusGrade, automatedGrade,
-                    automatedCorpusGrade, smogGrade, daleChallGrade);
+            String completeLine = ("%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s" +
+                    "^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s^%s").formatted(row[0], row[3], row[7], row[8], row[14],
+                    info[0], info[1], info[2], info[3], info[4], info[5], info[6], info[7], colemanIndexes[2],
+                    colemanIndexes[1], colemanIndexes[0], fleschEaseIndexes[2],fleschEaseIndexes[1],
+                    fleschEaseIndexes[0], fleschEaseCorpus, fleschEasePercentError, fleschGradeIndexes[2],
+                    fleschGradeIndexes[1], fleschGradeIndexes[0], fleschGradeCorpus, fleschGradePercentError,
+                    automatedIndexes[2], automatedIndexes[1], automatedIndexes[0], automatedCorpus,
+                    automatedPercentError, smogCorpus, daleCorpus, colemanGrade, fleschEaseGrade, fleschEaseCorpusGrade,
+                    fleschKincaidGrade, fleschKincaidCorpusGrade, automatedGrade, automatedCorpusGrade, smogGrade,
+                    daleChallGrade);
             
             row = completeLine.split("\\^");
             completeList.add(row);

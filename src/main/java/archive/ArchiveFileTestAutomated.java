@@ -6,14 +6,13 @@ import java.util.Scanner;
 
 import static readability.FileReformatting.formatFile;
 
-//TODO rework format for this index cuz its really stupid
 public class ArchiveFileTestAutomated
 {
     public static void main(String[] args) throws IOException
     {
         File ogFile = new File("src/files/readabilityTextTESTONLY.txt");
         File file = new File("src/files/formattedReadabilityTESTONLY.txt");
-        formatFile(ogFile, file, 0, true, true);
+        formatFile(ogFile, file, 0, true);
         
         System.out.println(automated(file));
     }

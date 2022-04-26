@@ -9,22 +9,21 @@ import java.util.Scanner;
 
 public class FileReformatting
 {
-    public static void formatFile(File originalFile, File formattedFile, int num, boolean skipChapter, boolean automated) throws IOException
+    public static void formatFile(File originalFile, File formattedFile, int num, boolean skipChapter) throws IOException
     {
         try (FileWriter writer = new FileWriter(formattedFile))
         {
             Scanner fileReader = new Scanner(originalFile);
             ArrayList<StringBuilder> list = new ArrayList<>(10);
         
-            cleanup(fileReader, list, skipChapter, automated);
+            cleanup(fileReader, list, skipChapter);
             writeToFile(writer, list, num);
         
             fileReader.close();
         }
     }
     
-    //TODO remove automated parameter
-    private static void cleanup(Scanner fileReader, List<StringBuilder> list, boolean skipChapter, boolean automated)
+    private static void cleanup(Scanner fileReader, List<StringBuilder> list, boolean skipChapter)
     {
         int listIndex = 0;
         
@@ -45,6 +44,7 @@ public class FileReformatting
             line = line.replaceAll("\\s* \\s*", " ");
             line = line.replaceAll("\\.+", ".");
             line = line.replaceAll("Mr\\.|Ms\\.|Dr\\.|Mrs\\.", "Tx");
+            line = line.replaceAll("['\"]", "");
             
         
             //add matching characters/sentences to proper index in the list
@@ -54,13 +54,8 @@ public class FileReformatting
                 //ignore this it just adds more space
                 if (listIndex >= list.size())
                     list.add(new StringBuilder());
-    
+                
                 //juicy stuff right here
-                
-//                else if (automated)
-//                    list.get(listIndex).append(character);
-//                if (character.matches("[\\d\\p{L} -]"))
-                
                 list.get(listIndex).append(character);
                 if (character.matches("[!?.]"))
                     listIndex++;
@@ -72,22 +67,9 @@ public class FileReformatting
     {
         for (StringBuilder sentence : list)
         {
-            //TODO this is a huge mess
-            
             //cleanup white space in case any extra slipped through (probably useless)
-    
             String temp = String.valueOf(sentence).trim();
             
-        
-            
-            //sometimes the line starts with a space, this removes it
-            if (temp.startsWith(" "))
-                temp = temp.substring(1);
-        
-            //this removes any spaces at the end of the line
-            if (temp.length() > 0 && temp.charAt(temp.length() - 1) == ' ')
-                temp = temp.substring(0, temp.length() - 1);
-        
             //skip any line that is too short
             String[] tempArr = temp.split(" ");
             if (tempArr.length <= num || temp.equals(""))

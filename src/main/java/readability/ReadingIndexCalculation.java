@@ -52,10 +52,7 @@ public class ReadingIndexCalculation
             final double L = 100 * (book.getCharacterCount() / book.getWordCount());
             final double S = 100 * (book.getSentenceCount() / book.getWordCount());
     
-            double index = (0.0588 * L) - (0.296 * S) - 15.8;
-            int temp = (int) Math.round(index * 100);
-            index = temp / 100.0;
-            return index;
+            return (0.0588 * L) - (0.296 * S) - 15.8;
         } else return 0;
     }
     
@@ -66,11 +63,7 @@ public class ReadingIndexCalculation
             final double ASL = book.getWordCount() / book.getSentenceCount();
             final double ASW = book.getSyllableCount() / book.getWordCount();
             
-            
-            double index = 206.835 - (1.015 * ASL) - (84.6 * ASW) + 14;
-            int temp = (int) Math.round(index * 100);
-            index = temp / 100.0;
-            return index;
+            return 206.835 - (1.015 * ASL) - (84.6 * ASW) + 14;
         } else return 0;
     }
     
@@ -80,25 +73,18 @@ public class ReadingIndexCalculation
         {
             final double ASL = book.getWordCount() / book.getSentenceCount();
             final double ASW = book.getSyllableCount() / book.getWordCount();
-            
-            
-            double index = (0.39 * ASL) + (11.8 * ASW) - 15.59;
-            int temp = (int) Math.round(index * 100);
-            index = temp / 100.0;
-            return index;
+    
+            return (0.39 * ASL) + (11.8 * ASW) - 15.59;
         } else return 0;
     }
     
     public static double calculateAutomated(Passage book)
     {
-        double letters = book.getCharacterCount();
+        double letters = book.getTotalCharacterCount();
         double words = book.getWordCount();
         double sentences = book.getSentenceCount();
-        
-        double index = (4.71 *(letters/words)) + (0.5 * (words / sentences)) - 21.43;
-        int temp = (int) Math.round(index * 100);
-        index = temp / 100.0;
-        return index;
+    
+        return (4.71 *(letters/words)) + (0.5 * (words / sentences)) - 21.43;
     }
     
     private ReadingIndexCalculation()
